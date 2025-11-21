@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testLogin()">Login</button>
+    <button onclick="testDocuments()">Get Documents</button>
+    <button onclick="testUpload()">Upload Test</button>
+    <div id="result"></div>
+
+    <script>
+        let token = localStorage.getItem('token');
+
+        function log(message) {
+            console.log(message);
+            document.getElementById('result').innerHTML += '<p>' + message + '</p>';
+        }
+
+        async function testLogin() {
+            try {
+                log('Testing login...');
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'password'
+                    })
+                });
+                const data = await response.json();
+                token = data.token;
+                localStorage.setItem('token', token);
+                log('Login successful, token: ' + token.substring(0, 50) + '...');
+            } catch (error) {
+                log('Login failed: ' + error);
+            }
+        }
+
+        async function testDocuments() {
+            try {
+                log('Testing documents API... Token exists: ' + !!token);
+                const response = await fetch('http://localhost:8080/api/documents?page=0&size=10', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                const data = await response.json();
+                log('Documents response: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Documents API failed: ' + error);
+            }
+        }
+
+        async function testUpload() {
+            try {
+                log('Testing upload...');
+                // Create a simple text file
+                const blob = new Blob(['test content'], { type: 'text/plain' });
+                const formData = new FormData();
+                formData.append('file', blob, 'test.txt');
+                formData.append('categoryId', '1');
+
+                const response = await fetch('http://localhost:8080/api/documents/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+                log('Upload response: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Upload failed: ' + error);
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+

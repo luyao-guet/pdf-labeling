@@ -1,0 +1,66 @@
+services:
+  # PostgreSQL数据库
+  db:
+    image: postgres:14-alpine
+    container_name: annotation-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: annotation_platform
+      POSTGRES_USER: annotation_user
+      POSTGRES_PASSWORD: annotation_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/main/resources/data.sql:/docker-entrypoint-initdb.d/01-init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - annotation-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U annotation_user -d annotation_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot后端
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: annotation-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: annotation_user
+      DB_PASSWORD: annotation_pass
+      JWT_SECRET: mySecretKey1234567890123456789012345678901234567890
+      JWT_EXPIRATION: 86400000
+      CORS_ALLOWED_ORIGINS: http://localhost
+    depends_on:
+      - db
+    volumes:
+      - ./backend/uploads:/app/uploads
+    ports:
+      - "8080:8080"
+    networks:
+      - annotation-network
+
+  # React前端
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: annotation-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - annotation-network
+
+volumes:
+  postgres_data:
+
+networks:
+  annotation-network:
+    driver: bridge
