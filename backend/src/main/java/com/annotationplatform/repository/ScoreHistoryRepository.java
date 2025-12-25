@@ -42,3 +42,4 @@ public interface ScoreHistoryRepository extends JpaRepository<ScoreHistory, Long
 
 
 
+

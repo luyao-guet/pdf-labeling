@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🛑 停止数据标注平台服务..."
+echo "🛑 停止数据AI自动化处理审核平台服务..."
 
 # 停止后端服务
 if [ -f .backend_pid ]; then

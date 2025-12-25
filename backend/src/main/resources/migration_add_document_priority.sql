@@ -7,3 +7,4 @@ ADD COLUMN priority VARCHAR(10) DEFAULT 'NORMAL';
 
 
 
+

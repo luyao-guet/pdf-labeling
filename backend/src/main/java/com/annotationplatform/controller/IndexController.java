@@ -13,7 +13,7 @@ public class IndexController {
     @GetMapping("/")
     public ResponseEntity<?> root() {
         Map<String, String> response = new HashMap<>();
-        response.put("message", "数据标注平台后端API运行正常!");
+        response.put("message", "数据AI自动化处理审核平台后端API运行正常!");
         response.put("status", "OK");
         response.put("version", "1.0.0");
         return ResponseEntity.ok(response);

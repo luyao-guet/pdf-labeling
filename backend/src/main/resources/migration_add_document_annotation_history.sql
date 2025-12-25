@@ -27,3 +27,4 @@ CREATE INDEX IF NOT EXISTS idx_user_id ON document_annotation_history(user_id);
 CREATE INDEX IF NOT EXISTS idx_field_name ON document_annotation_history(field_name);
 CREATE INDEX IF NOT EXISTS idx_created_at ON document_annotation_history(created_at);
 
+

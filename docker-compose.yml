@@ -1,22 +1,23 @@
 services:
-  # PostgreSQL数据库
+  # MySQL数据库
   db:
-    image: postgres:14-alpine
+    image: mysql:8.0
     container_name: annotation-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: annotation_platform
-      POSTGRES_USER: annotation_user
-      POSTGRES_PASSWORD: annotation_pass
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: annotation_platform
+      MYSQL_USER: annotation_user
+      MYSQL_PASSWORD: annotation_pass
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backend/src/main/resources/data.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - mysql_data:/var/lib/mysql
     ports:
-      - "5432:5432"
+      - "3306:3306"
     networks:
       - annotation-network
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U annotation_user -d annotation_platform"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +37,8 @@ services:
       JWT_EXPIRATION: 86400000
       CORS_ALLOWED_ORIGINS: http://localhost
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./backend/uploads:/app/uploads
     ports:
@@ -44,7 +46,7 @@ services:
     networks:
       - annotation-network
 
-  # React前端
+  # Vue3前端
   frontend:
     build:
       context: ./frontend
@@ -59,7 +61,7 @@ services:
       - annotation-network
 
 volumes:
-  postgres_data:
+  mysql_data:
 
 networks:
   annotation-network:

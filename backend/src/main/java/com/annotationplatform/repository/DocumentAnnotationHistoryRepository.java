@@ -31,3 +31,4 @@ public interface DocumentAnnotationHistoryRepository extends JpaRepository<Docum
     List<DocumentAnnotationHistory> findByDocumentIdAndFieldName(@Param("documentId") Long documentId, @Param("fieldName") String fieldName);
 }
 
+
